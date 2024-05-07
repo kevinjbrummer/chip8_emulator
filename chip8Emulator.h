@@ -3,7 +3,7 @@
 class Chip8Emulator
 {
   public:
-    uint8_t V[16]{}; //registers
+    uint8_t V[16]; //registers
     uint16_t I; //memory address
     uint16_t SP; //stack pointer
     uint16_t PC; //program counter
@@ -11,8 +11,8 @@ class Chip8Emulator
     uint8_t sound; //sound timer;
     uint8_t *memory;
     uint8_t *screen; //memory[0xf00];
-    uint8_t keyState[16]{};
-    uint8_t saveKeyState[16]{};
+    uint8_t keyState[16];
+    uint8_t saveKeyState[16];
     int waitingForKey;
     int halt;
 

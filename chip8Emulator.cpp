@@ -1,4 +1,5 @@
 #include "chip8Emulator.h"
+#include "font4x5.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <malloc.h>
@@ -15,6 +16,8 @@ Chip8Emulator::Chip8Emulator()
   PC = 0x200;
   waitingForKey = 0;
   halt = 0;
+
+  memcpy(&memory[FONT_BASE], font4x5, FONT_SIZE);
 }
 
 void Chip8Emulator::DisassembleChip8Op()
@@ -476,7 +479,7 @@ void Chip8Emulator::OpF(uint8_t *code)
     case 0x15: delay = V[x]; break;
     case 0x18: sound = V[x]; break;
     case 0x1e: I += V[x]; break;
-    case 0x29: UnimplementedInstruction(); break;
+    case 0x29: I = FONT_BASE + (V[x] * 5); break;
     case 0x33:
       {
         uint8_t tens, ones, hundreds;
