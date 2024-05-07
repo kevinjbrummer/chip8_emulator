@@ -42,26 +42,26 @@ void Chip8Emulator::DisassembleChip8Op()
       break;
     case 0x01:
       {
-        uint8_t reg = (op[0] & 0x0f);
-        printf("%-10s $%01x%02x", "JUMP", reg, op[1]);
+        uint8_t x = (op[0] & 0x0f);
+        printf("%-10s $%01x%02x", "JUMP", x, op[1]);
       }
       break;
     case 0x02:
       {
-        uint8_t reg = (op[0] & 0x0f);
-        printf("%-10s $%01x%02x", "CALL", reg, op[1]);
+        uint8_t x = (op[0] & 0x0f);
+        printf("%-10s $%01x%02x", "CALL", x, op[1]);
       }
       break;
     case 0x03:
       {
-        uint8_t reg = (op[0] & 0x0f);
-        printf("%-10s V%01x, #$%02x", "SKIP.EQ", reg, op[1]);
+        uint8_t x = (op[0] & 0x0f);
+        printf("%-10s V%01x, #$%02x", "SKIP.EQ", x, op[1]);
       }
       break;
     case 0x04:
       {
-        uint8_t reg = (op[0] & 0x0f);
-        printf("%-10s V%01x, #$%02x", "SKIP.NE", reg, op[1]);
+        uint8_t x = (op[0] & 0x0f);
+        printf("%-10s V%01x, #$%02x", "SKIP.NE", x, op[1]);
       }
       break;
     case 0x05:
@@ -69,14 +69,14 @@ void Chip8Emulator::DisassembleChip8Op()
       break;
     case 0x06:
       {
-        uint8_t reg = (op[0] & 0x0f);
-        printf("%-10s V%01x,#$%02x", "M0V", reg, op[1]);
+        uint8_t x = (op[0] & 0x0f);
+        printf("%-10s V%01x,#$%02x", "M0V", x, op[1]);
       }
       break;
     case 0x07:
       {
-        uint8_t reg = (op[0] & 0x0f);
-        printf("%-10s V%01x,#$%02x", "ADI", reg, op[1]);
+        uint8_t x = (op[0] & 0x0f);
+        printf("%-10s V%01x,#$%02x", "ADI", x, op[1]);
       }
       break;
     case 0x08:
@@ -214,7 +214,7 @@ void Chip8Emulator::EmulateChip8Op()
   case 0x05: Op5(op); break;
   case 0x06: Op6(op); break;
   case 0x07: Op7(op); break;
-  case 0x08: UnimplementedInstruction(); break;
+  case 0x08: Op8(op); break;
   case 0x09: Op9(op); break;
   case 0x0a: OpA(op); break;
   case 0x0b: OpB(op); break;
@@ -269,8 +269,8 @@ void Chip8Emulator::Op2(uint8_t *code)
 
 void Chip8Emulator::Op3(uint8_t *code)
 {
-  uint8_t reg = code[0] & 0x0f;
-  if (V[reg] == code[1])
+  uint8_t x = code[0] & 0x0f;
+  if (V[x] == code[1])
   {
     PC += 2;
   }
@@ -279,8 +279,8 @@ void Chip8Emulator::Op3(uint8_t *code)
 
 void Chip8Emulator::Op4(uint8_t *code)
 {
-  uint8_t reg = code[0] & 0x0f;
-  if (V[reg] != code[1])
+  uint8_t x = code[0] & 0x0f;
+  if (V[x] != code[1])
   {
     PC += 2;
   }
@@ -289,9 +289,9 @@ void Chip8Emulator::Op4(uint8_t *code)
 
 void Chip8Emulator::Op5(uint8_t *code)
 {
-  uint8_t reg1 = code[0] & 0x0f;
-  uint8_t reg2 = code[1] >> 4;
-  if (V[reg1] == V[reg2])
+  uint8_t x = code[0] & 0x0f;
+  uint8_t y = code[1] >> 4;
+  if (V[x] == V[y])
   {
     PC += 2;
   }
@@ -300,23 +300,61 @@ void Chip8Emulator::Op5(uint8_t *code)
 
 void Chip8Emulator::Op6(uint8_t *code)
 {
-  uint8_t reg = code[0] & 0x0f;
-  V[reg] = code[1];
+  uint8_t x = code[0] & 0x0f;
+  V[x] = code[1];
   PC += 2;
 }
 
 void Chip8Emulator::Op7(uint8_t *code)
 {
-  uint8_t reg = code[0] & 0x0f;
-  V[reg] += code[1];
+  uint8_t x = code[0] & 0x0f;
+  V[x] += code[1];
+  PC += 2;
+}
+
+void Chip8Emulator::Op8(uint8_t *code)
+{
+  uint8_t x = code[0] & 0x0f;
+  uint8_t y = code[1] >> 4;
+  switch(code[1] & 0x0f)
+  {
+    case 0x00: V[x] = V[y]; break;
+    case 0x01: V[x] |= V[y]; break;
+    case 0x02: V[x] &= V[y]; break;
+    case 0x03: V[x] ^= V[y]; break;
+    case 0x04:
+      {
+        uint16_t result = V[x] + V[y];
+        V[0x0f] = (result & 0xff00);
+        V[x] = result & 0xff;
+      }
+      break;
+    case 0x05:
+      V[0x0f] = (V[x] >= V[y]);
+      V[x] -= V[y];
+      break;
+    case 0x06:
+      V[0x0f] = V[x] & 0x1;
+      V[x] = V[x] >> 1;
+      break;
+    case 0x07:
+      V[0x0f] = (V[y] >= V[x]);
+      V[x] = V[y] - V[x];
+      break;
+    case 0x0e:
+      V[0x0f] = (0x80 == (V[x] & 0x80));
+      V[x] = V[x] << 1;
+      break;
+    default: UnimplementedInstruction(); break;
+  }
   PC += 2;
 }
 
 void Chip8Emulator::Op9(uint8_t *code)
 {
-  uint8_t reg1 = code[0] & 0x0f;
-  uint8_t reg2 = code[1] >> 4;
-  if (V[reg1] != V[reg2])
+  uint8_t x = code[0] & 0x0f;
+  uint8_t y = code[1] >> 4;
+  if (V[x] != V[y])
   {
     PC += 2;
   }
@@ -338,9 +376,9 @@ void Chip8Emulator::OpB(uint8_t *code)
 
 void Chip8Emulator::OpC(uint8_t *code)
 {
-  uint8_t reg = code[0] & 0x0f;
+  uint8_t x = code[0] & 0x0f;
   int rand = std::rand() % 256;
-  PC = V[reg] = rand & code[1];
+  PC = V[x] = rand & code[1];
 }
 
 void Chip8Emulator::LoadRom(char* file)
