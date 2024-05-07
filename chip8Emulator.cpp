@@ -221,7 +221,7 @@ void Chip8Emulator::EmulateChip8Op()
   case 0x0b: OpB(op); break;
   case 0x0c: OpC(op); break;
   case 0x0d: UnimplementedInstruction(); break;
-  case 0x0e: UnimplementedInstruction(); break;
+  case 0x0e: OpE(op); break;
   case 0x0f: OpF(op); break;
   default: UnimplementedInstruction(); break;
   }
@@ -380,6 +380,28 @@ void Chip8Emulator::OpC(uint8_t *code)
   uint8_t x = code[0] & 0x0f;
   int rand = std::rand() % 256;
   PC = V[x] = rand & code[1];
+}
+
+void Chip8Emulator::OpE(uint8_t *code)
+{
+  uint8_t x = code[0] & 0x0f;
+  switch (code[1])
+  {
+    case 0x9e:
+      if (keyState[V[x]] != 0)
+      {
+        PC += 2;
+      }
+      break;
+    case 0xa1:
+      if (keyState[V[x]] == 0)
+      {
+        PC += 2;
+      }
+      break;
+    default: UnimplementedInstruction(); break;
+  }
+  PC += 2;
 }
 
 void Chip8Emulator::OpF(uint8_t *code)
