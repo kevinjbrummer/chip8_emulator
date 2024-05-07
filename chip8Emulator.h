@@ -11,6 +11,9 @@ class Chip8Emulator
     uint8_t sound; //sound timer;
     uint8_t *memory;
     uint8_t *screen; //memory[0xf00];
+    uint8_t keyState[16]{};
+    uint8_t saveKeyState[16]{};
+    int waitingForKey;
     int halt;
 
     Chip8Emulator();

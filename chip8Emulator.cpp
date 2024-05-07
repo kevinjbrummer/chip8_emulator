@@ -13,6 +13,7 @@ Chip8Emulator::Chip8Emulator()
   screen = &memory[0xf00];
   SP = 0xfa0;
   PC = 0x200;
+  waitingForKey = 0;
   halt = 0;
 }
 
@@ -221,7 +222,7 @@ void Chip8Emulator::EmulateChip8Op()
   case 0x0c: OpC(op); break;
   case 0x0d: UnimplementedInstruction(); break;
   case 0x0e: UnimplementedInstruction(); break;
-  case 0x0f: UnimplementedInstruction(); break;
+  case 0x0f: OpF(op); break;
   default: UnimplementedInstruction(); break;
   }
 }
@@ -379,6 +380,71 @@ void Chip8Emulator::OpC(uint8_t *code)
   uint8_t x = code[0] & 0x0f;
   int rand = std::rand() % 256;
   PC = V[x] = rand & code[1];
+}
+
+void Chip8Emulator::OpF(uint8_t *code)
+{
+  uint8_t x = code[0] & 0x0f;
+  switch (code[1])
+  {
+    case 0x07: V[x] = delay; break;
+    case 0x0a:
+      if (!waitingForKey)
+      {
+        memcpy(saveKeyState, keyState, 16);
+        waitingForKey = 1;
+        return;
+      }
+      else
+      {
+        for (int i = 0; i < 16; ++i)
+        {
+          if ((saveKeyState[i] == 0) && (keyState[i] == 1))
+          {
+            waitingForKey = 0;
+            V[x] = i;
+            PC += 2;
+            return;
+          }
+        }
+        return;
+      }
+    case 0x15: delay = V[x]; break;
+    case 0x18: sound = V[x]; break;
+    case 0x1e: I += V[x]; break;
+    case 0x29: UnimplementedInstruction(); break;
+    case 0x33:
+      {
+        uint8_t tens, ones, hundreds;
+        uint8_t value = V[x];
+        ones = value % 10;
+        value = value / 10;
+        tens = value % 10;
+        hundreds = value / 10;
+
+        memory[I] = hundreds;
+        memory[I + 1] = tens;
+        memory[I + 2] = ones;
+      }
+      break;
+    case 0x55:
+      for (int i = 0; i <= x; ++i)
+      {
+        memory[I + i] = V[i];
+      }
+      I += (x + 1);
+      break;
+    case 0x65:
+      for (int i = 0; i <= x; ++i)
+      {
+        V[i] = memory[I + i];
+      }
+      I += (x + 1);
+      break;
+    default: UnimplementedInstruction(); break;
+  }
+
+  PC += 2;
 }
 
 void Chip8Emulator::LoadRom(char* file)
