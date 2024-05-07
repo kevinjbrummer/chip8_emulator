@@ -251,6 +251,7 @@ void Chip8Emulator::Op0(uint8_t *code)
 void Chip8Emulator::Op1(uint8_t *code)
 {
   uint16_t target = (code[0] << 8 | code[1]);
+  printf("%04x\n", target);
   if (PC == target)
   {
     printf("Infinite loop detected. Stopping program.\n");
