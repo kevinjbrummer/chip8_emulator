@@ -220,7 +220,7 @@ void Chip8Emulator::EmulateChip8Op()
   case 0x0a: OpA(op); break;
   case 0x0b: OpB(op); break;
   case 0x0c: OpC(op); break;
-  case 0x0d: UnimplementedInstruction(); break;
+  case 0x0d: OpD(op); break;
   case 0x0e: OpE(op); break;
   case 0x0f: OpF(op); break;
   default: UnimplementedInstruction(); break;
@@ -380,6 +380,48 @@ void Chip8Emulator::OpC(uint8_t *code)
   uint8_t x = code[0] & 0x0f;
   int rand = std::rand() % 256;
   PC = V[x] = rand & code[1];
+}
+
+void Chip8Emulator::OpD(uint8_t *code)
+{
+  //Draw Sprite
+  int lines = code[1] & 0x0f;
+  int x = V[code[0] & 0x0f];
+  int y = V[code[1] & 0xf0];
+
+  V[0x0f] = 0;
+  for (int i = 0; i < lines; ++i)
+  {
+    uint8_t *sprite = &memory[I + i];
+    int spriteBit = 7;
+    for (int j = x; j < (x + 8) && j < 64; ++j)
+    {
+      int jover8 = j / 8; //picks the bytes in the row
+      int jmod8 = j % 8; //picks the bit in the byte
+      uint8_t srcBit = (*sprite >> spriteBit) & 0x1;
+
+      if (srcBit)
+      {
+        uint8_t *destByte_p = &screen[(i + y) * (64/8) + jover8];
+        uint8_t destByte = *destByte_p;
+        uint8_t destMask = (0x80 >> jmod8);
+        uint8_t destBit = destByte & destMask;
+
+        srcBit = srcBit << (7 - jmod8);
+
+        if (srcBit && destBit)
+        {
+          V[0x0f] = 1;
+        }
+
+        destBit ^= srcBit;
+        destByte = (destByte & ~destMask) | destBit;
+        *destByte_p = destByte;
+      }
+      --spriteBit;
+    }
+  }
+  PC += 2;
 }
 
 void Chip8Emulator::OpE(uint8_t *code)
