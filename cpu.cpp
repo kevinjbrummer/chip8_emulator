@@ -45,11 +45,13 @@ void Chip8::EmulateCycle()
       switch(opcode & 0x00FF)
       {
         case 0x00E0: Op00E0(); break;
+        case 0x00EE: Op00EE(); break;
         default: UnimplementedOpCode(); break;
       }
     }
     break;
   case 0x1000: Op1NNN(); break;
+  case 0x2000: Op2NNN(); break;
   case 0x3000: Op3XNN(); break;
   case 0x4000: Op4XNN(); break;
   case 0x5000: Op5XY0(); break;
@@ -94,6 +96,13 @@ void Chip8::Op00E0()
   PC += 2;
 }
 
+void Chip8::Op00EE()
+{
+  --SP;
+  PC = Stack[SP];
+  PC += 2;
+}
+
 void Chip8::Op1NNN()
 {
   uint16_t address = opcode & 0x0FFF;
@@ -106,6 +115,15 @@ void Chip8::Op1NNN()
   {
     PC = address;
   }
+}
+
+void Chip8::Op2NNN()
+{
+  uint16_t address = opcode & 0x0FFF;
+  Stack[SP] = PC;
+  ++SP;
+
+  PC = address;
 }
 
 void Chip8::Op3XNN()
