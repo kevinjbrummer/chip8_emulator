@@ -77,6 +77,7 @@ void Chip8::EmulateCycle()
     break;
   case 0x9000: Op9XY0(); break;
   case 0xA000: OpANNN(); break;
+  case 0xB000: OpBNNN(); break;
   case 0xD000: OpDXYN(); break;
   case 0xE000:
     {
@@ -317,6 +318,12 @@ void Chip8::OpANNN()
 {
   I = opcode & 0x0FFF;
   PC += 2;
+}
+
+void Chip8::OpBNNN()
+{
+  uint16_t address = (opcode & 0x0FFF);
+  PC = V[0] + address;
 }
 
 void Chip8::OpDXYN()
