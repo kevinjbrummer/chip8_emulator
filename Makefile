@@ -2,7 +2,7 @@ OBJS = main.cpp cpu.cpp display.cpp
 
 CC = g++
 
-LINKED_FLAGS = -lmingw32 -lSDL2main -lSDL2
+LINKED_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer
 
 OBJ_NAME = chip8_emulator.exe
 

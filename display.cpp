@@ -1,18 +1,26 @@
 #include "display.hpp"
 #include <SDL2/SDL.h>
 #include <stdint.h>
+#include <SDL2/SDL_mixer.h>
 
 Display::Display(char const* title)
 {
   screenWidth = 64;
   screenHeight = 32;
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth * 10, screenHeight * 10, SDL_WINDOW_SHOWN);
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+  Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+  beep = Mix_LoadWAV("beep-02.wav");
+
 }
 
 Display::~Display()
 {
+  Mix_FreeChunk(beep);
+
+  SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
 }
@@ -45,6 +53,11 @@ void Display::Update(uint8_t* buffer)
   delete destRect;
 
   SDL_RenderPresent(renderer);
+}
+
+void Display::PlaySound()
+{
+  Mix_PlayChannel(-1, beep, 0);
 }
 
 bool Display::ProcessInput(uint8_t* keys)

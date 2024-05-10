@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <cstdlib>
+#include <random>
 
 class Chip8
 {
@@ -20,6 +21,9 @@ class Chip8
     bool halt;
     bool drawFlag;
     bool waitingForKey;
+    bool soundFlag;
+    std::default_random_engine randGen;
+    std::uniform_int_distribution<uint8_t> randByte;
 
     Chip8();
     bool LoadRom(char* file);

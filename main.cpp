@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <chrono>
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
@@ -16,7 +17,7 @@ int main(int argc, char* argv[])
 
   Display display("Chip 8 Emulator");
 
-  int cycleDelay = 4;
+  int cycleDelay = std::stoi(argv[2]);
   auto lastCycleTime = std::chrono::high_resolution_clock::now();
 
   bool quit = false;
@@ -40,6 +41,12 @@ int main(int argc, char* argv[])
       {
         display.Update(chip8.gfx);
         chip8.drawFlag = false;
+      }
+
+      if (chip8.soundFlag)
+      {
+        display.PlaySound();
+        chip8.soundFlag = false;
       }
     }
 

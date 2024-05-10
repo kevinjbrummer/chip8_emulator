@@ -3,6 +3,9 @@
 #include <cstring>
 #include <stdlib.h>
 #include <ctime>
+#include <chrono>
+#include <random>
+
 
 uint8_t FONT_SET[80] = 
 {
@@ -24,7 +27,8 @@ uint8_t FONT_SET[80] =
   0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-Chip8::Chip8()
+Chip8::Chip8():randGen(std::chrono::system_clock::now().time_since_epoch().count())
+
 {
   memory   = (uint8_t*)calloc(4096, 1);
   PC       = 0x200;
@@ -36,10 +40,9 @@ Chip8::Chip8()
   waitingForKey = false;
   delayTimer = 0;
   soundTimer = 0;
+  randByte = std::uniform_int_distribution<uint8_t>(0, 255U);
 
   memcpy(&memory[0], FONT_SET, 80);
-
-  srand((unsigned) time(NULL));
 }
 
 bool Chip8::LoadRom(char* file)
@@ -146,7 +149,7 @@ void Chip8::EmulateCycle()
   {
     if(soundTimer == 1)
     {
-      printf("BEEP!\n");
+      soundFlag = true;
     }
     --soundTimer;
   }
@@ -155,6 +158,7 @@ void Chip8::EmulateCycle()
 void Chip8::Op00E0()
 {
   memset(gfx, 0, 64 * 32);
+  drawFlag = true;
   PC += 2;
 }
 
@@ -366,9 +370,8 @@ void Chip8::OpBNNN()
 
 void Chip8::OpCXNN()
 {
-  uint16_t x = V[(opcode & 0x0F00) >> 8];
-  int rand_int = rand() % 256;
-  V[x] = rand_int + (opcode & 0x00FF);
+  uint16_t x = (opcode & 0x0F00) >> 8;
+  V[x] = randByte(randGen) & (opcode & 0x00FF);
   PC += 2;
 }
 
@@ -518,19 +521,4 @@ void Chip8::UnimplementedOpCode()
 {
   printf("Unknown opcode: %04x\n", opcode);
   PC += 2;
-}
-
-void Chip8::Draw()
-{
-  for (int i = 0; i < sizeof(gfx); i++)
-  {
-    printf("%x", gfx[i]);
-    if ((i+1) % 64 == 0)
-    {
-      printf("\n");
-    }
-  }
-  drawFlag = false;
-      printf("\n");
-
 }
