@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 
   Display display("Chip 8 Emulator");
 
-  int cycleDelay = 3;
+  int cycleDelay = 4;
   auto lastCycleTime = std::chrono::high_resolution_clock::now();
 
   bool quit = false;

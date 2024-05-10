@@ -249,6 +249,7 @@ void Chip8::Op8XY1()
   uint8_t y = (opcode & 0x00F0) >> 4;
 
   V[x] |= V[y];
+  V[0xF] = 0;
   PC += 2;
 }
 
@@ -258,6 +259,7 @@ void Chip8::Op8XY2()
   uint8_t y = (opcode & 0x00F0) >> 4;
 
   V[x] &= V[y];
+  V[0xF] = 0;
   PC += 2;
 }
 
@@ -265,8 +267,9 @@ void Chip8::Op8XY3()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
-
+  
   V[x] ^= V[y];
+  V[0xF] = 0;
   PC += 2;
 }
 
@@ -371,8 +374,8 @@ void Chip8::OpCXNN()
 
 void Chip8::OpDXYN()
 {
-  uint16_t x = V[(opcode & 0x0F00) >> 8];
-  uint16_t y = V[(opcode & 0x00F0) >> 4];
+  uint16_t x = V[(opcode & 0x0F00) >> 8] % 64;
+  uint16_t y = V[(opcode & 0x00F0) >> 4] % 32;
   uint16_t height = opcode & 0x000F;
   uint16_t pixel;
 
@@ -384,6 +387,10 @@ void Chip8::OpDXYN()
     {
       if ((pixel & (0x80 >> xline)) != 0)
       {
+        if ((x + xline) > 63)
+        {
+          break;
+        }
         if (gfx[(x + xline + ((y + yline) * 64))] == 1)
         {
           V[0xF] = 1;
