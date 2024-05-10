@@ -77,6 +77,16 @@ void Chip8::EmulateCycle()
   case 0x9000: Op9XY0(); break;
   case 0xA000: OpANNN(); break;
   case 0xD000: OpDXYN(); break;
+  case 0xE000:
+    {
+      switch(opcode & 0x00FF)
+      {
+        case 0x009E: OpEX9E(); break;
+        case 0x00A1: OpEXA1(); break;
+        default: UnimplementedOpCode(); break;
+      }
+    }
+    break;
   case 0xF000:
     {
       switch (opcode & 0x00FF)
@@ -317,6 +327,26 @@ void Chip8::OpDXYN()
     }
   }
   drawFlag = true;
+  PC += 2;
+}
+
+void Chip8::OpEX9E()
+{
+  uint8_t x = (opcode & 0x0F00) >> 4;
+  if (keys[V[x]] != 0)
+  {
+    PC += 2;
+  }
+  PC += 2;
+}
+
+void Chip8::OpEXA1()
+{
+  uint8_t x = (opcode & 0x0F00) >> 4;
+  if (keys[V[x]] == 0)
+  {
+    PC += 2;
+  }
   PC += 2;
 }
 
