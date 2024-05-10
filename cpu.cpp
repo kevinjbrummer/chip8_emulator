@@ -82,6 +82,7 @@ void Chip8::EmulateCycle()
       switch (opcode & 0x00FF)
       {
       case 0x001E: OpFX1E(); break;
+      case 0x0033: OpFX33(); break;
       case 0x0055: OpFX55(); break;
       case 0x0065: OpFX65(); break;
       default: UnimplementedOpCode(); break;
@@ -314,20 +315,23 @@ void Chip8::OpFX1E()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
   I += V[x];
-  printf("I = %04x", I);
   PC += 2;
 }
 
-void Chip8::UnimplementedOpCode()
+void Chip8::OpFX33()
 {
-  printf("Unknown opcode: %04x", opcode);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+
+  memory[I] = V[x] / 100;
+  memory[I + 1] = (V[x] / 10) % 10;
+  memory[I + 2] = (V[x] % 100) % 10;
   PC += 2;
 }
 
 void Chip8::OpFX55()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
-  
+
   for (int i = 0; i <= x; i++)
   {
     memory[I + i] = V[i];
@@ -339,12 +343,18 @@ void Chip8::OpFX55()
 void Chip8::OpFX65()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
-  
+
   for (int i = 0; i <= x; i++)
   {
     V[i] = memory[I + i];
   }
 
+  PC += 2;
+}
+
+void Chip8::UnimplementedOpCode()
+{
+  printf("Unknown opcode: %04x", opcode);
   PC += 2;
 }
 
