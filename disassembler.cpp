@@ -181,38 +181,6 @@ void DisassembleChip8Op(uint8_t *codebuffer, int pc)
   }
 }
 
-int main (int argc, char* argv[])
-{
-  FILE * infile;
-  long lSize;
-  unsigned char * buffer;
-  size_t result;
-
-  infile = fopen(argv[1], "rb");
-  if (infile == NULL)
-  {
-    printf("File Error %s", argv[1]);
-    exit(1);
-  }
-
-  fseek(infile, 0, SEEK_END);
-  lSize = ftell(infile);
-  rewind(infile);
-
-  buffer = (unsigned char*)malloc(sizeof(char)*lSize);
-
-  result = fread(buffer+0x200, 1, lSize, infile);
-  fclose(infile);
-
-  int pc = 0x200;
-
-  while (pc < lSize + 0x200)
-  {
-    DisassembleChip8Op(buffer, pc);
-    pc += 2;
-    printf("\n");
-  }
-
-  free(buffer);
+int main(int argc, char* argv[]){
   return 0;
 }
