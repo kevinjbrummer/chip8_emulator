@@ -10,8 +10,8 @@ class Chip8
     uint16_t I;
     uint16_t PC;
     uint8_t gfx[64 * 32]{};
-    uint8_t delay_timer;
-    uint8_t sound_timer;
+    uint8_t delayTimer;
+    uint8_t soundTimer;
     uint16_t Stack[16]{};
     uint16_t SP;
     uint8_t keys[16]{};

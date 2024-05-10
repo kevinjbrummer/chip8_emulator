@@ -11,6 +11,8 @@ Chip8::Chip8()
   SP       = 0;
   halt     = false;
   drawFlag = false;
+  delayTimer = 0;
+  soundTimer = 0;
 }
 
 bool Chip8::LoadRom(char* file)
@@ -37,7 +39,6 @@ void Chip8::EmulateCycle()
 {
   uint8_t* code = &memory[PC];
   opcode = (code[0] << 8) | code[1];
-  printf("%04x %02x %02x ", PC, code[0], code[1]);
   switch (opcode & 0xF000)
   {
   case 0x0000:
@@ -91,15 +92,30 @@ void Chip8::EmulateCycle()
     {
       switch (opcode & 0x00FF)
       {
-      case 0x001E: OpFX1E(); break;
-      case 0x0033: OpFX33(); break;
-      case 0x0055: OpFX55(); break;
-      case 0x0065: OpFX65(); break;
-      default: UnimplementedOpCode(); break;
+        case 0x0007: OpFX07(); break;
+        case 0x001E: OpFX1E(); break;
+        case 0x0033: OpFX33(); break;
+        case 0x0055: OpFX55(); break;
+        case 0x0065: OpFX65(); break;
+        default: UnimplementedOpCode(); break;
       }
     }
     break;
   default: UnimplementedOpCode(); break;
+  }
+
+  if (delayTimer > 0)
+  {
+    --delayTimer;
+  }
+
+  if (soundTimer > 0)
+  {
+    if(soundTimer == 1)
+    {
+      printf("BEEP!\n");
+    }
+    --soundTimer;
   }
 }
 
@@ -347,6 +363,13 @@ void Chip8::OpEXA1()
   {
     PC += 2;
   }
+  PC += 2;
+}
+
+void Chip8::OpFX07()
+{
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  V[x] = delayTimer;
   PC += 2;
 }
 
