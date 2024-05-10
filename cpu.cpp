@@ -72,6 +72,7 @@ void Chip8::EmulateCycle()
       }
     }
     break;
+  case 0x9000: Op9XY0(); break;
   case 0xA000: OpANNN(); break;
   case 0xD000: OpDXYN(); break;
   case 0xF000:
@@ -238,6 +239,19 @@ void Chip8::Op8XYE()
 
   V[0xF] = (V[x] && 0x80);
   V[x] <<= 1;
+
+  PC += 2;
+}
+
+void Chip8::Op9XY0()
+{
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
+
+  if (V[x] != V[y])
+  {
+    PC += 2;
+  }
 
   PC += 2;
 }
