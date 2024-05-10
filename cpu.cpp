@@ -238,9 +238,9 @@ void Chip8::Op8XY6()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
 
-  V[0xF] = (V[x] && 0x01);
-  V[x] >>= 1;
-
+  uint8_t lsb = (V[x] & 0x01);
+  V[x] = V[x] >>  1;
+  V[0xF] = lsb;
   PC += 2;
 }
 
@@ -258,9 +258,9 @@ void Chip8::Op8XYE()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
 
-  V[0xF] = (V[x] && 0x80);
+  uint8_t msb = 0x80 == (V[x] & 0x80);
   V[x] <<= 1;
-
+  V[0xF] = msb;
   PC += 2;
 }
 
