@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
     if (!chip8.halt)
     {
       chip8.EmulateCycle();
-      printf("\n");
     }
 
     if (chip8.drawFlag)

@@ -19,8 +19,6 @@ Display::~Display()
 
 void Display::Update(uint8_t* buffer)
 {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_Rect* destRect = new SDL_Rect;
   destRect->x = 0;

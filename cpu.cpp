@@ -316,7 +316,6 @@ void Chip8::Op9XY0()
 void Chip8::OpANNN()
 {
   I = opcode & 0x0FFF;
-  printf("I = %04x", I);
   PC += 2;
 }
 
