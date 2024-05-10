@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
       chip8.drawFlag = false;
     }
 
-    quit = display.ProcessInput();
+    quit = display.ProcessInput(chip8.keys);
 
   }
   return 0;

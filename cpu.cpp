@@ -348,7 +348,7 @@ void Chip8::OpDXYN()
 
 void Chip8::OpEX9E()
 {
-  uint8_t x = (opcode & 0x0F00) >> 4;
+  uint8_t x = (opcode & 0x0F00) >> 8;
   if (keys[V[x]] != 0)
   {
     PC += 2;
@@ -358,7 +358,7 @@ void Chip8::OpEX9E()
 
 void Chip8::OpEXA1()
 {
-  uint8_t x = (opcode & 0x0F00) >> 4;
+  uint8_t x = (opcode & 0x0F00) >> 8;
   if (keys[V[x]] == 0)
   {
     PC += 2;
@@ -423,7 +423,7 @@ void Chip8::OpFX65()
 
 void Chip8::UnimplementedOpCode()
 {
-  printf("Unknown opcode: %04x", opcode);
+  printf("Unknown opcode: %04x\n", opcode);
   PC += 2;
 }
 
