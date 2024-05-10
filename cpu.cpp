@@ -52,6 +52,7 @@ void Chip8::EmulateCycle()
   case 0x1000: Op1NNN(); break;
   case 0x3000: Op3XNN(); break;
   case 0x4000: Op4XNN(); break;
+  case 0x5000: Op5XY0(); break;
   case 0x6000: Op6XNN(); break;
   case 0x7000: Op7XNN(); break;
   case 0xA000: OpANNN(); break;
@@ -103,6 +104,18 @@ void Chip8::Op4XNN()
 {
   uint8_t x  = (opcode & 0x0F00) >> 8;
   if (V[x] != (opcode & 0x00FF))
+  {
+    PC += 2;
+  }
+  PC += 2;
+}
+
+void Chip8::Op5XY0()
+{
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
+
+  if (V[x] == V[y])
   {
     PC += 2;
   }
