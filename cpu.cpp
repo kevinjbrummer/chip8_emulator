@@ -66,6 +66,7 @@ void Chip8::EmulateCycle()
         case 0x0004: Op8XY4(); break;
         case 0x0005: Op8XY5(); break;
         case 0x0006: Op8XY6(); break;
+        case 0x0007: Op8XY7(); break;
         default: UnimplementedOpCode(); break;
       }
     }
@@ -216,6 +217,17 @@ void Chip8::Op8XY6()
 
   V[0xF] = (V[x] && 0x01);
   V[x] >>= 1;
+
+  PC += 2;
+}
+
+void Chip8::Op8XY7()
+{
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
+
+  V[0xF] = (V[y] >= V[x]);
+  V[x] = V[y] - V[x];
 
   PC += 2;
 }
