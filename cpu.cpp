@@ -257,8 +257,9 @@ void Chip8::Op8XY7()
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
 
-  V[0xF] = (V[y] >= V[x]);
+  int borrow = (V[y] >= V[x]);
   V[x] = V[y] - V[x];
+  V[0xF] = borrow;
 
   PC += 2;
 }
