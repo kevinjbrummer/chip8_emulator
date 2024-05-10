@@ -1,6 +1,8 @@
 #include "cpu.hpp"
 #include <stdio.h>
 #include <cstring>
+#include <stdlib.h>
+#include <ctime>
 
 Chip8::Chip8()
 {
@@ -14,6 +16,8 @@ Chip8::Chip8()
   waitingForKey = false;
   delayTimer = 0;
   soundTimer = 0;
+
+  srand((unsigned) time(NULL));
 }
 
 bool Chip8::LoadRom(char* file)
@@ -79,6 +83,7 @@ void Chip8::EmulateCycle()
   case 0x9000: Op9XY0(); break;
   case 0xA000: OpANNN(); break;
   case 0xB000: OpBNNN(); break;
+  case 0xC000: OpCXNN(); break;
   case 0xD000: OpDXYN(); break;
   case 0xE000:
     {
@@ -97,6 +102,7 @@ void Chip8::EmulateCycle()
         case 0x0007: OpFX07(); break;
         case 0x000A: OpFX0A(); break;
         case 0x0015: OpFX15(); break;
+        case 0x0018: OpFX18(); break;
         case 0x001E: OpFX1E(); break;
         case 0x0033: OpFX33(); break;
         case 0x0055: OpFX55(); break;
@@ -275,7 +281,9 @@ void Chip8::Op8XY5()
 void Chip8::Op8XY6()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
 
+  V[x] = V[y];
   uint8_t lsb = (V[x] & 0x01);
   V[x] = V[x] >>  1;
   V[0xF] = lsb;
@@ -296,7 +304,9 @@ void Chip8::Op8XY7()
 void Chip8::Op8XYE()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
 
+  V[x] = V[y];
   uint8_t msb = 0x80 == (V[x] & 0x80);
   V[x] <<= 1;
   V[0xF] = msb;
@@ -326,6 +336,14 @@ void Chip8::OpBNNN()
 {
   uint16_t address = (opcode & 0x0FFF);
   PC = V[0] + address;
+}
+
+void Chip8::OpCXNN()
+{
+  uint16_t x = V[(opcode & 0x0F00) >> 8];
+  int rand_int = rand() % 256;
+  V[x] = rand_int + (opcode & 0x00FF);
+  PC += 2;
 }
 
 void Chip8::OpDXYN()
@@ -408,6 +426,13 @@ void Chip8::OpFX15()
 {
   uint8_t x = (opcode & 0x0F00) >> 8;
   delayTimer = V[x];
+  PC += 2;
+}
+
+void Chip8::OpFX18()
+{
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  soundTimer = V[x];
   PC += 2;
 }
 

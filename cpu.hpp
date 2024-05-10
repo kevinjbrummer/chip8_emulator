@@ -45,6 +45,7 @@ class Chip8
     void Op9XY0();
     void OpANNN();
     void OpBNNN();
+    void OpCXNN();
     void OpDXYN();
     void OpEX9E();
     void OpEXA1();
