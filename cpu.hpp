@@ -15,8 +15,10 @@ class Chip8
     uint16_t Stack[16]{};
     uint16_t SP;
     uint8_t keys[16]{};
+    uint8_t savedKeys[16]{};
     bool halt;
     bool drawFlag;
+    bool waitingForKey;
 
     Chip8();
     bool LoadRom(char* file);

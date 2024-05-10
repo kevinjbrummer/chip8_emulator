@@ -11,6 +11,7 @@ Chip8::Chip8()
   SP       = 0;
   halt     = false;
   drawFlag = false;
+  waitingForKey = false;
   delayTimer = 0;
   soundTimer = 0;
 }
@@ -94,6 +95,7 @@ void Chip8::EmulateCycle()
       switch (opcode & 0x00FF)
       {
         case 0x0007: OpFX07(); break;
+        case 0x000A: OpFX0A(); break;
         case 0x0015: OpFX15(); break;
         case 0x001E: OpFX1E(); break;
         case 0x0033: OpFX33(); break;
@@ -378,6 +380,28 @@ void Chip8::OpFX07()
   uint8_t x = (opcode & 0x0F00) >> 8;
   V[x] = delayTimer;
   PC += 2;
+}
+
+void Chip8::OpFX0A()
+{
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  if (!waitingForKey)
+  {
+    waitingForKey = true;
+    memcpy(savedKeys, keys, 16);
+  }
+  else
+  {
+    for (int i = 0; i < 16; i++)
+    {
+      if ((savedKeys[i] == 0) && keys[i] == 1)
+      {
+        waitingForKey = false;
+        V[x] = i;
+        PC += 2;
+      }
+    }
+  }
 }
 
 void Chip8::OpFX15()
