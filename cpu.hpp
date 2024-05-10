@@ -16,6 +16,7 @@ class Chip8
     uint16_t SP;
     uint8_t keys[16]{};
     uint8_t savedKeys[16]{};
+    uint8_t fontSet[80]{};
     bool halt;
     bool drawFlag;
     bool waitingForKey;
