@@ -217,8 +217,15 @@ void Chip8::Op8XY4()
   uint8_t y = (opcode & 0x00F0) >> 4;
   uint16_t result = V[x] + V[y];
 
-  V[0xF] = (result & 0xFF00);
   V[x] = (result & 0x00FF);
+  if (result & 0xFF00)
+  {
+    V[0xF] = 1;
+  }
+  else
+  {
+    V[0xF] = 0;
+  }
 
   PC += 2;
 }
